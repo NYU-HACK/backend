@@ -4,7 +4,7 @@ const app = express();
 
 import configRoutes from "./routes/index.js";
 
-app.use(cors());
+app.use(cors("*"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
