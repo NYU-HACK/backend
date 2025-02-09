@@ -43,7 +43,7 @@ router.route("/signup").post(async (req, res) => {
 router.route("/addItem/:userId").post(async (req, res) => {
   try {
     req.params.userId = validateId(req.params.userId);
-    let { code, name, brand, category, quantity, expirationDate, manualEntry } =
+    let { code, name, brand, category, quantity, expirationDate, manualEntry, price } =
       req.body;
     const addItem = await addItemToUser(
       req.params.userId,
