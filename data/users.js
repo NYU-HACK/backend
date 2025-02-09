@@ -270,7 +270,9 @@ ${itemList}
 
 ### Task:
 - Prioritize ingredients that are **expiring soon** when suggesting recipes.
-- Suggest **3 recipes** that use the items listed, giving priority to the earliest expiring ones. Also if the items aren't matching please suggest to eat alone asap
+- If it requires some spices include that in instructions
+- If the items are enough to make 3 recipes which are useful, just dont five random answers and if items are to be consumed alone just state in a single line and less than 3 prompts would suffice with third one be one statement
+- Suggest **3 recipes** that use the items listed, giving priority to the earliest expiring ones.
 
 ### Return the response in JSON format like this:
 \`\`\`json
@@ -287,6 +289,7 @@ ${itemList}
 - **Do not include extra text** outside the JSON response.
 - Use **items with the nearest expiration date first** in recipes.
 - Ensure each recipe contains a **title, ingredients, and step-by-step instructions**.
+- keep it precise
 `;
 };
 
@@ -343,7 +346,10 @@ export const chatWithOpenAI = async (userId, userPrompt) => {
 ${refrigeratedItems}
 
 ### User's Question:
-${userPrompt}`;
+${userPrompt}
+
+Keep the response concise and give me back the plain text and also be definetive I dont want options.
+`;
 
   // Add the system context message
   userChat.messages.push({
@@ -353,7 +359,7 @@ ${userPrompt}`;
   });
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: userChat.messages.map((msg) => ({
       role: msg.role,
       content: msg.content,
@@ -460,5 +466,6 @@ and similarly other metrics will change
 }
 \`\`\`
 
-Do not include any extra text, just return structured JSON data. Include units in json data`;
+- Do not include any extra text, just return structured JSON data. Include units in json data
+- Please be concise and if any of the price is not give, just consider it as per industry standard price based on your knowledge`;
 };
