@@ -465,10 +465,10 @@ For below calculations, if you don't find price for any item, you may assume it 
 Also be more accurate, include some trends totalFridgeValue should not be same as potential savings dont consider items exping within 2 days in potentialSavings
 and similarly other metrics will change
 ### Task:
-1. Calculate the **total value of expired items (wasted food cost)**.
+1. Calculate the **total value of expired items (wasted food cost)**, also how is this increasing every time it should be total pantry value - non-expired pantry item values.
 2. Calculate the **total value of non-expired items**.
 3. Estimate **potential savings if I use up the remaining food instead of wasting it**.
-5. Suggest a **smart grocery budget for next month** based on past trends.
+5. Suggest a **smart grocery budget for next month** based on past trends, take everything into account dont give me a random number, take a guess based on prvevious data or generic say any number between 60$ to 100$ just a whole number.
 6. Estimate the **environmental impact (CO₂ emissions) of wasted food**.
 
 **Return the response in JSON format** like this:
@@ -483,5 +483,6 @@ and similarly other metrics will change
 \`\`\`
 
 - Do not include any extra text, just return structured JSON data. Include units in json data
-- Please be concise and if any of the price is not give, just consider it as per industry standard price based on your knowledge`;
+- Please be concise and if any of the price is not give, just consider it as per industry standard price based on your knowledge
+`;
 };
