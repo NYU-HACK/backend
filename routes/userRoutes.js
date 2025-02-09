@@ -34,7 +34,9 @@ router.route("/signup").post(async (req, res) => {
 
     return res.json(createUser);
   } catch (error) {
-    res.status(400).json({ signUpSuccessful: false, error: error.message });
+    return res
+      .status(400)
+      .json({ signUpSuccessful: false, error: error.message });
   }
 });
 
@@ -96,7 +98,7 @@ router.route("/updateItem/:userId/:itemId").put(async (req, res) => {
       itemData
     );
 
-    return updateUser;
+    return res.json(updateUser);
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
@@ -114,6 +116,7 @@ router.route("/getSuggestions").post(async (req, res) => {
 router.route("/getItems/:userId").get(async (req, res) => {
   try {
     const items = await getItemsByUserId(req.params.userId);
+    return res.json(items);
   } catch (error) {
     return res.status(404).json({ error: error.message });
   }

@@ -322,14 +322,38 @@ export const chatWithOpenAI = async (userId, userPrompt) => {
   if (!userChat) {
     userChat = { userId: new ObjectId(userId), messages: [] };
   }
+
+  const userCollection = await users();
+  const user = await userCollection.findOne({
+    _id: ObjectId.createFromHexString(userId),
+  });
+
+  // Extract and format refrigerated items
+  const refrigeratedItems = user.refrigeratedItems
+    .map(
+      (item) =>
+        `- ${item.name} (${item.quantity}), Expires on: ${item.expirationDate}`
+    )
+    .join("\n");
+
+  // Modify user prompt to include refrigerated items
+  const systemPrompt = `Based on the following items in the user's refrigerator, answer the user's prompt.
+
+### User's Refrigerated Items:
+${refrigeratedItems}
+
+### User's Question:
+${userPrompt}`;
+
+  // Add the system context message
   userChat.messages.push({
-    role: "user",
-    content: userPrompt,
+    role: "system",
+    content: systemPrompt,
     timestamp: new Date(),
   });
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     messages: userChat.messages.map((msg) => ({
       role: msg.role,
       content: msg.content,
@@ -348,7 +372,7 @@ export const chatWithOpenAI = async (userId, userPrompt) => {
   const updateChat = await chatsCollection.findOneAndUpdate(
     { userId: new ObjectId(userId) },
     { $set: { messages: userChat.messages } },
-    { upsert: true, returnDocument: "after" } // ✅ Options should be inside the third parameter
+    { upsert: true, returnDocument: "after" }
   );
 
   return updateChat.messages;
