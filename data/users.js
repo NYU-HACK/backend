@@ -7,6 +7,7 @@ import {
   checkIsProperFirstOrLastName,
   validateEmail,
   checkIsProperPassword,
+  validateId,
 } from "../helpers.js";
 import OpenAI from "openai";
 
@@ -245,32 +246,55 @@ const parseToList = (text) => {
 };
 
 const generatePrompt = (refrigeratedItems) => {
-  let itemList = refrigeratedItems
+  // Sort items by expiration date (earliest first)
+  const sortedItems = refrigeratedItems.sort(
+    (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
+  );
+
+  // Format the sorted list
+  let itemList = sortedItems
     .map((item) => {
-      // Convert quantity to string if it's a number
       const quantity =
         typeof item.quantity === "number"
           ? item.quantity.toString()
           : item.quantity;
-      return `- ${item.name} (${quantity})`;
+      return `- ${item.name} (${quantity}), Expires on: ${item.expirationDate}`;
     })
     .join("\n");
 
-  return `I have the following ingredients in my refrigerator:
+  return `I have the following ingredients in my refrigerator, **sorted by expiration date (soonest first)**:
 
 ${itemList}
 
-Based on these ingredients, suggest 3 recipes I can make. 
+### Task:
+- Prioritize ingredients that are **expiring soon** when suggesting recipes.
+- Suggest **3 recipes** that use the items listed, giving priority to the earliest expiring ones.
 
-**Return the response in JSON format** with the following structure:
+### Return the response in JSON format like this:
 \`\`\`json
 [
   {
     "title": "Recipe Title",
     "ingredients": ["Ingredient 1", "Ingredient 2", ...],
+    "instructions": ["Step 1", "Step 2", ...]
   }
 ]
 \`\`\`
 
-Ensure that each recipe contains a **title, ingredients, and instructions**. Do not include any extra text or explanations outside the JSON format.`;
+**Rules:**
+- **Do not include extra text** outside the JSON response.
+- Use **items with the nearest expiration date first** in recipes.
+- Ensure each recipe contains a **title, ingredients, and step-by-step instructions**.
+`;
+};
+
+export const getItemsByUserId = async (userId) => {
+  userId = validateId(userId);
+  const userCollection = await users();
+  const user = userCollection.findOne({
+    _id: ObjectId.createFromHexString(userId),
+  });
+  if (!user) throw new Error("User not found");
+
+  return user.refrigeratedItems;
 };

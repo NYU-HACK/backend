@@ -12,6 +12,7 @@ import {
   updateItemsForUser,
   verifyToken,
   suggestRecipes,
+  getItemsByUserId,
 } from "../data/users.js";
 
 const router = Router();
@@ -84,7 +85,7 @@ router.route("/updateItem/:userId/:itemId").put(async (req, res) => {
   try {
     req.params.itemId = validateId(req.params.itemId);
     req.params.userId = validateId(req.params.userId);
-    const {itemData} = req.body;
+    const { itemData } = req.body;
     const updateUser = await updateItemsForUser(
       req.params.userId,
       req.params.itemId,
@@ -103,6 +104,14 @@ router.route("/getSuggestions").post(async (req, res) => {
     return res.json(response);
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.route("/getItems/:userId").get(async (req, res) => {
+  try {
+    const items = await getItemsByUserId(req.params.userId);
+  } catch (error) {
+    return res.status(404).json({ error: error.message });
   }
 });
 
