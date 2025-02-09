@@ -12,7 +12,7 @@ router.route("/getInfo").post(async (req, res) => {
     const product = await readQRCode(qrCode);
     return res.json({ productFound: true, product: product });
   } catch (error) {
-    return res.json(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

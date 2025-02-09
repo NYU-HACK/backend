@@ -12,7 +12,23 @@ import {
 import OpenAI from "openai";
 
 dotenv.config();
-const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK || "{}");
+const serviceAccount = {
+  type: "service_account",
+  project_id: "food-wallet-13522",
+  private_key_id: "39e42820ce587fc0d8dfe2af09aa90f7ccb4961a",
+  private_key:
+    "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8IRr4bRcFGYc1\nDmpNvlB8BGwLA6nL9O/7pZZODY4TJgI/Ks2KOW2cBqZnJk23RrRm2pgtdyOgnxW2\nffmKF8pylkade3mqejgfgdUjEpUYFI5eylycG4CQi5BkWtTTeBcmRPUznVAwA5WN\nIVx9OdPQdUGHxwJoZ8VrAj2XPeGj4EfrXjoNBENJcGYMKe0Fol3KNSTmk7EkUvnJ\nhPb17LCLFyipBVuXAYfkKNXox7GS61funYmhrLr367Op/gT1Dn6Dx2cWDzuC0dvk\nHl+TZ2vSWUbnKThnGYlANOkKi7f/shq8L5XiXrO+TDPYBrKkkg1787O29fzhaRdY\nA8hTvtpfAgMBAAECggEAC9iPI4ga+aM7NEgNbDUeSZuDAh6KQ+F5ywAI5YP3p5UD\nxzPMGswK7tbXBjUPPQnNX5HxdctutDUlijGHKP7egeCcibC2CdoFoVZCNCHTaYoX\nJ44ueVXx/n1gljEcqEQuO6apRJq/QIa5QAMTGSovADf3QbQc9Ai0vEw5J0YqPcX3\nGsRlCE1O56VxnfvzwbELETkEaOcfJ9gO5HFJ/cAlXns5CK18oRbLEglF+RHzm2dS\n1ql07uC45du/EuGG1WXGLbnvUnIGawaKKlg5p/BYH6pHdFA29bSPAPc9qRxmd7+e\nzUCsUGfQsMMi5HKMi2x/fNcwLVnb5XKKowGhsL90AQKBgQD1+PD25kstWOuJtjzf\nk3w/Ow9fp8z2X2pHezJ9/j4Yys7blAqPoK4c1F2TtjvV3MReaAsdwwG+kQB0A4j1\ntf6QGPyZmfy+460V9XLwILktN0Lvk6f27iNQ4CHVYgU60qhVm30Ri+S7BJiJDqXO\n+zhSBY+VH0fU6GHHG1M/OsYngQKBgQDDzH37pKJOSpKtoz+9xeN8y5s0tRYhpZvu\n/KwQ+QnMXBQ4qGKawMNSB9UEraEoDiTEjFf3t/AQ66KRX8g/CgE8CK+wrTQZDS04\nBdjDOiVEJaZRdUXUVhYalhzsGWKI1FJmct1uWgZvTTEVQ/Q5ZXXXAYP75uBznc8l\nNmL9PvLx3wKBgEDPWw5zF5PXPhiG//sY7T/r290kZYj1ExfKij9QYiQ+K8sHctDt\nUXMfMZjeB14OUV9eoq8w1qDTq/7lf4zeaziknMoMHOBfNRf4GFTVCnWzfduKWFNj\n48JHjCKhNSeOofQMiCO7bIUqbNaQGXg0EV7rQC3WlCKxKDJCLOkYH2YBAoGAdHye\nny3NWiLHrQIok/C9bKt9hRgPOKlcYgx1GgvvpmNJrIORVlxEV/NM6mGaNUhk24Jb\ne4c1DfwCVdbUPZzoKx1H2SbSjezm8COaWFupfCeiEWhhyPgGYn7YaiaYFquq8kR4\nNITeuy0DfJFXJSaVuvqt2Rn8gwxqBsuajOv8gaUCgYEAtdZOkxM6I6ErkiCp4KCl\nuwToT1szTKvf2wT7BrbUAPaJsP5k/ldBjU6JJ9EP4kRxfO9bMjaT4Gc//jAoNFk0\n+mWCCxbdLi4QpUq5rfhfz5psNSlFbKCXQYhSnHHoeiNaKsomwlF/y0HqN3JyjJ4M\nLT45H6qWqyata08GXKlnFGM=\n-----END PRIVATE KEY-----\n",
+  client_email:
+    "firebase-adminsdk-fbsvc@food-wallet-13522.iam.gserviceaccount.com",
+  client_id: "112447643945596568593",
+  auth_uri: "https://accounts.google.com/o/oauth2/auth",
+  token_uri: "https://oauth2.googleapis.com/token",
+  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+  client_x509_cert_url:
+    "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40food-wallet-13522.iam.gserviceaccount.com",
+  universe_domain: "googleapis.com",
+};
+// const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK || "{}");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
