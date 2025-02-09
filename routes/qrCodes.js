@@ -3,7 +3,7 @@ import { readQRCode } from "../data/qrCodes.js";
 
 const router = Router();
 
-router.route("/getInfo").get(async (req, res) => {
+router.route("/getInfo").post(async (req, res) => {
   if (!req.body)
     return res.json({ error: "Please supply a food product to scan" });
 

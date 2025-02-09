@@ -74,7 +74,7 @@ router.route("/login").post(async (req, res) => {
   try {
     const { token } = req.body;
     const user = await verifyToken(token);
-    return user;
+    return res.json(user);
   } catch (error) {
     return res.json(401).json({ error: "Invalid Token" });
   }
@@ -84,9 +84,11 @@ router.route("/updateItem/:userId/:itemId").put(async (req, res) => {
   try {
     req.params.itemId = validateId(req.params.itemId);
     req.params.userId = validateId(req.params.userId);
+    const {itemData} = req.body;
     const updateUser = await updateItemsForUser(
       req.params.userId,
-      req.param.itemId
+      req.params.itemId,
+      itemData
     );
 
     return updateUser;
@@ -95,7 +97,7 @@ router.route("/updateItem/:userId/:itemId").put(async (req, res) => {
   }
 });
 
-router.route("/getSuggestions").get(async (req, res) => {
+router.route("/getSuggestions").post(async (req, res) => {
   try {
     const response = await suggestRecipes(req.body.userId);
     return res.json(response);
