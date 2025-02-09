@@ -52,7 +52,8 @@ export const addItemToUser = async (
   category,
   quantity,
   expirationDate,
-  manualEntry
+  manualEntry,
+  price
 ) => {
   const userCollection = await users();
   const user = await userCollection.findOne({
@@ -79,6 +80,7 @@ export const addItemToUser = async (
     category: category,
     quantity: quantity,
     expirationDate: expirationDate,
+    price: price,
   });
 
   const updateUser = await userCollection.findOneAndUpdate(
@@ -268,7 +270,7 @@ ${itemList}
 
 ### Task:
 - Prioritize ingredients that are **expiring soon** when suggesting recipes.
-- Suggest **3 recipes** that use the items listed, giving priority to the earliest expiring ones.
+- Suggest **3 recipes** that use the items listed, giving priority to the earliest expiring ones. Also if the items aren't matching please suggest to eat alone asap
 
 ### Return the response in JSON format like this:
 \`\`\`json
@@ -350,4 +352,89 @@ export const chatWithOpenAI = async (userId, userPrompt) => {
   );
 
   return updateChat.messages;
+};
+
+export const getKPIs = async (userId) => {
+  userId = validateId(userId);
+  const userCollection = await users();
+  const user = await userCollection.findOne({
+    _id: ObjectId.createFromHexString(userId),
+  });
+  const message = generateKPI_Prompt(user.refrigeratedItems);
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: message }],
+    temperature: 0.7,
+  });
+
+  let rawText = response.choices[0].message.content.trim();
+  console.log("Raw AI Response:\n", rawText);
+
+  // Remove code block markers (```json ... ```)
+  rawText = rawText.replace(/^```json\n/, "").replace(/\n```$/, "");
+
+  try {
+    const kpiData = JSON.parse(rawText);
+    console.log("Parsed KPI Data:\n", kpiData);
+    return kpiData;
+  } catch (error) {
+    console.error("JSON Parsing Error:", error);
+    return {};
+  }
+};
+
+const generateKPI_Prompt = (refrigeratedItems) => {
+  const today = new Date();
+
+  // Separate expired and non-expired items
+  const expiredItems = [];
+  const nonExpiredItems = [];
+
+  refrigeratedItems.forEach((item) => {
+    const expirationDate = new Date(item.expirationDate);
+    const quantity =
+      typeof item.quantity === "number"
+        ? item.quantity.toString()
+        : item.quantity;
+    const price = item.price ? `$${item.price}` : "Unknown Price";
+
+    const formattedItem = `- ${item.name} (${quantity}), Price: ${price}, Expiration: ${item.expirationDate}`;
+
+    if (expirationDate < today) {
+      expiredItems.push(formattedItem);
+    } else {
+      nonExpiredItems.push(formattedItem);
+    }
+  });
+
+  return `I have the following food items in my refrigerator:
+
+### 🛑 Expired Items:
+${expiredItems.length > 0 ? expiredItems.join("\n") : "None"}
+
+### ✅ Non-Expired Items:
+${nonExpiredItems.length > 0 ? nonExpiredItems.join("\n") : "None"}
+
+For below calculations, if you don't find price for any item, you may assume it based on industry standards in US and give me the KPIs based on calculations
+Also be more accurate, include some trends totalFridgeValue should not be same as potential savings dont consider items exping within 2 days in potentialSavings
+and similarly other metrics will change
+### Task:
+1. Calculate the **total value of expired items (wasted food cost)**.
+2. Calculate the **total value of non-expired items**.
+3. Estimate **potential savings if I use up the remaining food instead of wasting it**.
+5. Suggest a **smart grocery budget for next month** based on past trends.
+6. Estimate the **environmental impact (CO₂ emissions) of wasted food**.
+
+**Return the response in JSON format** like this:
+\`\`\`json
+{
+  "totalWastedValue": "Amount in dollars",
+  "totalFridgeValue": "Amount in dollars",
+  "potentialSavings": "Amount in dollars",
+  "recommendedGroceryBudget": "Amount in dollars",
+  "environmentalImpact": "CO2 waste in pounds"
+}
+\`\`\`
+
+Do not include any extra text, just return structured JSON data. Include units in json data`;
 };

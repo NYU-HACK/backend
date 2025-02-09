@@ -15,6 +15,7 @@ import {
   getItemsByUserId,
   getChatsForUser,
   chatWithOpenAI,
+  getKPIs,
 } from "../data/users.js";
 
 const router = Router();
@@ -50,7 +51,8 @@ router.route("/addItem/:userId").post(async (req, res) => {
       category,
       quantity,
       expirationDate,
-      manualEntry
+      manualEntry,
+      price
     );
     return res.json(addItem);
   } catch (error) {
@@ -131,6 +133,15 @@ router.route("/chat").post(async (req, res) => {
     const { userId, message } = req.body;
     const response = await chatWithOpenAI(userId, message);
     return res.json({ response });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.route("/kpis/:userId").get(async (req, res) => {
+  try {
+    const kpis = await getKPIs(req.params.userId);
+    return res.json(kpis);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
