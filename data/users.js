@@ -293,7 +293,7 @@ ${itemList}
 export const getItemsByUserId = async (userId) => {
   userId = validateId(userId);
   const userCollection = await users();
-  const user = userCollection.findOne({
+  const user = await userCollection.findOne({
     _id: ObjectId.createFromHexString(userId),
   });
   if (!user) throw new Error("User not found");
@@ -310,7 +310,7 @@ export const getChatsForUser = async (userId) => {
     userId: ObjectId.createFromHexString(userId),
   });
 
-  return chatsForUser.messages || [];
+  return chatsForUser?.messages || [];
 };
 
 export const chatWithOpenAI = async (userId, userPrompt) => {
