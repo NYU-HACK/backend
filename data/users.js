@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 import admin from "firebase-admin";
-import { users, products } from "../config/mongoCollections.js";
-import { ObjectId, ReturnDocument } from "mongodb";
+import { users, products, chats } from "../config/mongoCollections.js";
+import { ObjectId } from "mongodb";
 import {
   checkIsProperFirstOrLastName,
   validateEmail,
@@ -297,4 +297,57 @@ export const getItemsByUserId = async (userId) => {
   if (!user) throw new Error("User not found");
 
   return user.refrigeratedItems;
+};
+
+export const getChatsForUser = async (userId) => {
+  userId = validateId(userId);
+
+  const chatsCollection = await chats();
+
+  const chatsForUser = await chatsCollection.findOne({
+    userId: ObjectId.createFromHexString(userId),
+  });
+
+  return chatsForUser.messages || [];
+};
+
+export const chatWithOpenAI = async (userId, userPrompt) => {
+  const chatsCollection = await chats();
+  let userChat = await chatsCollection.findOne({
+    userId: new ObjectId(userId),
+  });
+
+  if (!userChat) {
+    userChat = { userId: new ObjectId(userId), messages: [] };
+  }
+  userChat.messages.push({
+    role: "user",
+    content: userPrompt,
+    timestamp: new Date(),
+  });
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: userChat.messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    })),
+    temperature: 0.7,
+  });
+
+  const aiReply = response.choices[0].message.content;
+
+  userChat.messages.push({
+    role: "assistant",
+    content: aiReply,
+    timestamp: new Date(),
+  });
+
+  const updateChat = await chatsCollection.findOneAndUpdate(
+    { userId: new ObjectId(userId) },
+    { $set: { messages: userChat.messages } },
+    { upsert: true, returnDocument: "after" } // ✅ Options should be inside the third parameter
+  );
+
+  return updateChat.messages;
 };

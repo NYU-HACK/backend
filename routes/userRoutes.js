@@ -13,6 +13,8 @@ import {
   verifyToken,
   suggestRecipes,
   getItemsByUserId,
+  getChatsForUser,
+  chatWithOpenAI,
 } from "../data/users.js";
 
 const router = Router();
@@ -112,6 +114,25 @@ router.route("/getItems/:userId").get(async (req, res) => {
     const items = await getItemsByUserId(req.params.userId);
   } catch (error) {
     return res.status(404).json({ error: error.message });
+  }
+});
+
+router.route("/getChats/:userId").get(async (req, res) => {
+  try {
+    const messages = await getChatsForUser(req.params.userId);
+    return res.json({ messages });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+router.route("/chat").post(async (req, res) => {
+  try {
+    const { userId, message } = req.body;
+    const response = await chatWithOpenAI(userId, message);
+    return res.json({ response });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 });
 
